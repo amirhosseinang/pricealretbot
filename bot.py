@@ -1,0 +1,35 @@
+import requests
+from telegram import Bot
+import time
+
+# توکن ربات تلگرام خود را اینجا وارد کنید
+TELEGRAM_BOT_TOKEN = '6752548121:AAF4nLxpFPTQYkszKYObzr4r98HWNDqz8OE'
+CHAT_ID = '692293413'
+
+# ایجاد نمونه‌ای از ربات تلگرام
+bot = Bot(token=TELEGRAM_BOT_TOKEN)
+
+# تابعی برای دریافت قیمت طلا و دلار
+def get_gold_and_dollar_prices():
+    # دریافت قیمت طلا
+    gold_response = requests.get('https://alanchand.com/api/price-free?type=gold')
+    gold_data = gold_response.json()
+    gold_price = gold_data[0]['sell']
+    
+    # دریافت قیمت دلار
+    dollar_response = requests.get('https://alanchand.com/api/price-free?type=currencies')
+    dollar_data = dollar_response.json()
+    dollar_price = dollar_data[0]['sell']
+    
+    return gold_price, dollar_price
+
+# تابعی برای ارسال قیمت‌ها به تلگرام
+def send_prices_to_telegram():
+    gold_price, dollar_price = get_gold_and_dollar_prices()
+    message = f"قیمت فعلی:\nطلا: {gold_price:,.0f} تومان\nدلار: {dollar_price:,.0f} تومان"
+    bot.send_message(chat_id=CHAT_ID, text=message)
+
+# بروز رسانی هر ۳ ساعت
+while True:
+    send_prices_to_telegram()
+    time.sleep(3 * 60 * 60)  # 3 ساعت در ثانیه
